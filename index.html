@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flash Thought</title>
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Kosugi+Maru&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #eae2cf;
+    --card: #faf6ea;
+    --card-edge: #d9cfae;
+    --ink: #2b3440;
+    --ink-soft: #6b7480;
+    --ink-faint: #a3a99a;
+
+    --cat-work: #4a6fa5;      --cat-work-soft: #e4ebf4;
+    --cat-want: #b8863a;      --cat-want-soft: #f5ecda;
+    --cat-other: #71856a;     --cat-other-soft: #e9efe4;
+
+    --st-none: #9aa5ad;       --st-none-soft: #eceeef;
+    --st-progress: #c1652f;   --st-progress-soft: #f6e4d8;
+    --st-check: #4a7d8c;      --st-check-soft: #e0ecee;
+    --st-hold: #8b7aa8;       --st-hold-soft: #ece7f2;
+    --st-done: #5e8c61;       --st-done-soft: #e4ede4;
+
+    --shadow: 0 2px 8px rgba(43,52,64,0.10), 0 1px 2px rgba(43,52,64,0.08);
+    --radius: 10px;
+    --tap: 44px;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    margin: 0;
+    font-family: 'Kosugi Maru', sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-bottom: 96px;
+  }
+
+  .top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--paper);
+    padding: 14px 14px 10px;
+    border-bottom: 1px solid var(--card-edge);
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  header h1 {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-weight: 900;
+    font-size: 19px;
+    margin: 0;
+  }
+  header h1 span { display: inline-block; transform: rotate(-3deg); margin-right: 6px; }
+  .count-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    background: var(--card);
+    border: 1px solid var(--card-edge);
+    border-radius: 20px;
+    padding: 3px 10px;
+  }
+
+  .capture {
+    background: var(--card);
+    border: 1px solid var(--card-edge);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 10px 10px 8px;
+  }
+  .capture textarea {
+    width: 100%;
+    resize: none;
+    min-height: 40px;
+    max-height: 120px;
+    font-family: 'Kosugi Maru', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    padding: 6px 4px;
+    outline: none;
+  }
+  .cat-pick {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 4px 2px 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .cat-pick::-webkit-scrollbar { display: none; }
+  .cat-chip {
+    flex: 0 0 auto;
+    font-family: 'Kosugi Maru', sans-serif;
+    font-size: 13px;
+    padding: 7px 13px;
+    border-radius: 20px;
+    border: 1.5px solid var(--card-edge);
+    background: #fff;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .cat-chip[data-active="1"][data-c="work"] { background: var(--cat-work-soft); border-color: var(--cat-work); color: var(--cat-work); }
+  .cat-chip[data-active="1"][data-c="want"] { background: var(--cat-want-soft); border-color: var(--cat-want); color: var(--cat-want); }
+  .cat-chip[data-active="1"][data-c="other"] { background: var(--cat-other-soft); border-color: var(--cat-other); color: var(--cat-other); }
+  .cat-chip[data-active="1"][data-c="food"] { background: var(--cat-food-soft); border-color: var(--cat-food); color: var(--cat-food); }
+
+  .capture button#addBtn {
+    width: 100%;
+    min-height: var(--tap);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    border-radius: 8px;
+    border: none;
+    background: var(--ink);
+    color: var(--card);
+  }
+  .capture button#addBtn:active { background: #1c232c; }
+
+  .filters { padding: 10px 14px 4px; }
+  .filter-row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 0 0 auto;
+    font-family: 'Kosugi Maru', sans-serif;
+    font-size: 12.5px;
+    padding: 6px 12px;
+    min-height: 32px;
+    border-radius: 20px;
+    border: 1px solid var(--card-edge);
+    background: var(--card);
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .tab.active { background: var(--ink); color: var(--card); border-color: var(--ink); }
+
+  .sort-row { display: flex; justify-content: flex-end; }
+  .sort-row select {
+    font-family: 'Kosugi Maru', sans-serif;
+    font-size: 12.5px;
+    border-radius: 8px;
+    border: 1px solid var(--card-edge);
+    padding: 6px 8px;
+    background: #fff;
+    color: var(--ink-soft);
+  }
+
+  .list {
+    padding: 8px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--card-edge);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px 14px 12px;
+  }
+  .tape {
+    position: absolute;
+    top: -6px; left: 16px;
+    width: 38px; height: 13px;
+    opacity: 0.85;
+    border-radius: 1px;
+  }
+  .card[data-cat="work"] .tape { background: var(--cat-work); }
+  .card[data-cat="want"] .tape { background: var(--cat-want); }
+  .card[data-cat="other"] .tape { background: var(--cat-other); }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .cat-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .card[data-cat="work"] .cat-badge { background: var(--cat-work-soft); color: var(--cat-work); }
+  .card[data-cat="want"] .cat-badge { background: var(--cat-want-soft); color: var(--cat-want); }
+  .card[data-cat="other"] .cat-badge { background: var(--cat-other-soft); color: var(--cat-other); }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    color: var(--ink-faint);
+    font-size: 16px;
+    line-height: 1;
+    width: 32px; height: 32px;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .delete-btn:active { color: #b23b3b; background: rgba(178,59,59,0.1); }
+
+  .card-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .card.is-done .card-text { text-decoration: line-through; color: var(--ink-faint); }
+
+  .card-bottom { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .status-row { display: flex; gap: 4px; flex-wrap: wrap; }
+  .st-btn {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    padding: 5px 9px;
+    min-height: 30px;
+    border-radius: 15px;
+    border: 1.5px solid var(--card-edge);
+    background: #fff;
+    color: var(--ink-faint);
+  }
+  .st-btn[data-active="1"].st-none { background: var(--st-none-soft); color: var(--st-none); border-color: var(--st-none); }
+  .st-btn[data-active="1"].st-progress { background: var(--st-progress-soft); color: var(--st-progress); border-color: var(--st-progress); }
+  .st-btn[data-active="1"].st-check { background: var(--st-check-soft); color: var(--st-check); border-color: var(--st-check); }
+  .st-btn[data-active="1"].st-hold { background: var(--st-hold-soft); color: var(--st-hold); border-color: var(--st-hold); }
+  .st-btn[data-active="1"].st-done { background: var(--st-done-soft); color: var(--st-done); border-color: var(--st-done); }
+
+  .timestamp {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+
+  .empty { text-align: center; padding: 50px 24px; color: var(--ink-soft); }
+  .empty p:first-child {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .empty p { font-size: 12.5px; margin: 0; }
+
+  .status-msg {
+    position: fixed;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--card);
+    background: var(--ink);
+    padding: 5px 12px;
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    max-width: calc(100% - 40px);
+    z-index: 20;
+  }
+  .status-msg.show { opacity: 0.92; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="top">
+    <header>
+      <h1><span>📓</span>Flash Thought</h1>
+      <div class="count-tag" id="countTag">0 件</div>
+    </header>
+
+    <div class="capture">
+      <textarea id="noteInput" placeholder="頭の中がいっぱい？ 地面に捨てるより、ここへ捨てよう。" rows="1"></textarea>
+      <div class="cat-pick" id="catPick">
+        <button class="cat-chip" data-c="work" data-active="0">仕事</button>
+        <button class="cat-chip" data-c="want" data-active="0">やりたいこと</button>
+        <button class="cat-chip" data-c="other" data-active="0">その他</button>
+      </div>
+      <button id="addBtn">追加する</button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-row" id="catFilterRow">
+      <button class="tab active" data-filter-cat="all">すべて</button>
+      <button class="tab" data-filter-cat="work">仕事</button>
+      <button class="tab" data-filter-cat="want">やりたいこと</button>
+      <button class="tab" data-filter-cat="other">その他</button>
+    </div>
+    <div class="filter-row" id="stFilterRow">
+      <button class="tab active" data-filter-st="all">すべて</button>
+      <button class="tab" data-filter-st="none">未着手</button>
+      <button class="tab" data-filter-st="progress">進行中</button>
+      <button class="tab" data-filter-st="check">要確認</button>
+      <button class="tab" data-filter-st="hold">保留</button>
+      <button class="tab" data-filter-st="done">完了</button>
+    </div>
+    <div class="sort-row">
+      <select id="sortSelect">
+        <option value="new">新しい順</option>
+        <option value="old">古い順</option>
+        <option value="cat">カテゴリ順</option>
+        <option value="st">ステータス順</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="list" id="grid"></div>
+  <div class="empty" id="emptyState" style="display:none;">
+    <p>メモがありません</p>
+    <p>頭の中がいっぱいになる前に、上の欄へ捨てよう。</p>
+  </div>
+  <div class="status-msg" id="statusMsg"></div>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'idea-notes';
+  const CAT_LABEL = { work: '仕事', want: 'やりたいこと', other: 'その他' };
+  const CAT_ORDER = { work: 0, want: 1, other: 2 };
+  const ST_LABEL = { none: '未着手', progress: '進行中', check: '要確認', hold: '保留', done: '完了' };
+  const ST_ORDER = { progress: 0, check: 1, none: 2, hold: 3, done: 4 };
+  const ST_CLASS = { none: 'st-none', progress: 'st-progress', check: 'st-check', hold: 'st-hold', done: 'st-done' };
+
+  let notes = [];
+  let filterCat = 'all';
+  let filterSt = 'all';
+  let sortMode = 'new';
+  let pickedCat = 'work';
+
+  const grid = document.getElementById('grid');
+  const emptyState = document.getElementById('emptyState');
+  const countTag = document.getElementById('countTag');
+  const statusMsg = document.getElementById('statusMsg');
+  const noteInput = document.getElementById('noteInput');
+  const addBtn = document.getElementById('addBtn');
+  const catPick = document.getElementById('catPick');
+
+  function flashStatus(text) {
+    statusMsg.textContent = text;
+    statusMsg.classList.add('show');
+    clearTimeout(flashStatus._t);
+    flashStatus._t = setTimeout(() => statusMsg.classList.remove('show'), 1200);
+  }
+
+  function fmtDate(iso) {
+    const d = new Date(iso);
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  async function loadNotes() {
+    try {
+      const res = await window.storage.get(STORAGE_KEY, false);
+      notes = res ? JSON.parse(res.value) : [];
+    } catch (e) {
+      notes = [];
+    }
+  }
+
+  async function saveNotes() {
+    try {
+      const result = await window.storage.set(STORAGE_KEY, JSON.stringify(notes), false);
+      flashStatus(result ? '保存済み' : '保存に失敗しました');
+    } catch (e) {
+      flashStatus('保存エラー');
+    }
+  }
+
+  function addNote() {
+    const text = noteInput.value.trim();
+    if (!text) return;
+    const id = 'n' + Date.now() + Math.random().toString(36).slice(2, 7);
+    notes.push({ id, text, category: pickedCat, status: 'none', createdAt: new Date().toISOString() });
+    noteInput.value = '';
+    noteInput.style.height = 'auto';
+    render();
+    saveNotes();
+  }
+
+  function deleteNote(id) {
+    notes = notes.filter(n => n.id !== id);
+    render();
+    saveNotes();
+  }
+
+  function setStatus(id, status) {
+    const n = notes.find(n => n.id === id);
+    if (n) n.status = status;
+    render();
+    saveNotes();
+  }
+
+  function getVisibleSorted() {
+    let list = notes.filter(n =>
+      (filterCat === 'all' || n.category === filterCat) &&
+      (filterSt === 'all' || n.status === filterSt)
+    );
+    if (sortMode === 'new') list = list.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    else if (sortMode === 'old') list = list.slice().sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    else if (sortMode === 'cat') list = list.slice().sort((a, b) => CAT_ORDER[a.category] - CAT_ORDER[b.category] || new Date(b.createdAt) - new Date(a.createdAt));
+    else if (sortMode === 'st') list = list.slice().sort((a, b) => ST_ORDER[a.status] - ST_ORDER[b.status] || new Date(b.createdAt) - new Date(a.createdAt));
+    return list;
+  }
+
+  function render() {
+    const visible = getVisibleSorted();
+    countTag.textContent = `${notes.length} 件`;
+    grid.innerHTML = '';
+    emptyState.style.display = visible.length === 0 ? 'block' : 'none';
+
+    visible.forEach(n => {
+      const card = document.createElement('div');
+      card.className = 'card' + (n.status === 'done' ? ' is-done' : '');
+      card.dataset.cat = n.category;
+
+      const statusBtns = Object.keys(ST_LABEL).map(s =>
+        `<button class="st-btn ${ST_CLASS[s]}" data-active="${n.status === s ? 1 : 0}" data-status-for="${n.id}" data-status-val="${s}">${ST_LABEL[s]}</button>`
+      ).join('');
+
+      card.innerHTML = `
+        <div class="tape"></div>
+        <div class="card-top">
+          <span class="cat-badge">${CAT_LABEL[n.category]}</span>
+          <button class="delete-btn" title="削除" data-del="${n.id}">✕</button>
+        </div>
+        <div class="card-text"></div>
+        <div class="card-bottom">
+          <div class="status-row">${statusBtns}</div>
+        </div>
+        <div class="timestamp" style="margin-top:8px;text-align:right;">${fmtDate(n.createdAt)}</div>
+      `;
+      card.querySelector('.card-text').textContent = n.text;
+      grid.appendChild(card);
+    });
+
+    grid.querySelectorAll('[data-del]').forEach(btn => {
+      btn.addEventListener('click', () => deleteNote(btn.dataset.del));
+    });
+    grid.querySelectorAll('[data-status-for]').forEach(btn => {
+      btn.addEventListener('click', () => setStatus(btn.dataset.statusFor, btn.dataset.statusVal));
+    });
+  }
+
+  function refreshCatPick() {
+    catPick.querySelectorAll('.cat-chip').forEach(chip => {
+      chip.dataset.active = chip.dataset.c === pickedCat ? '1' : '0';
+    });
+  }
+  catPick.querySelectorAll('.cat-chip').forEach(chip => {
+    chip.addEventListener('click', () => { pickedCat = chip.dataset.c; refreshCatPick(); });
+  });
+  refreshCatPick();
+
+  noteInput.addEventListener('input', () => {
+    noteInput.style.height = 'auto';
+    noteInput.style.height = Math.min(noteInput.scrollHeight, 120) + 'px';
+  });
+
+  addBtn.addEventListener('click', addNote);
+
+  document.querySelectorAll('[data-filter-cat]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterCat = btn.dataset.filterCat;
+      document.querySelectorAll('[data-filter-cat]').forEach(b => b.classList.toggle('active', b === btn));
+      render();
+    });
+  });
+  document.querySelectorAll('[data-filter-st]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterSt = btn.dataset.filterSt;
+      document.querySelectorAll('[data-filter-st]').forEach(b => b.classList.toggle('active', b === btn));
+      render();
+    });
+  });
+  document.getElementById('sortSelect').addEventListener('change', e => {
+    sortMode = e.target.value;
+    render();
+  });
+
+  (async function init() {
+    await loadNotes();
+    render();
+  })();
+})();
+</script>
+</body>
+</html>

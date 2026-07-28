@@ -1,0 +1,21 @@
+{
+  "name": "Flash Thought",
+  "short_name": "Flash Thought",
+  "description": "頭の中がいっぱい？ 地面に捨てるより、ここへ捨てよう。",
+  "start_url": "./flash_thought.html",
+  "display": "standalone",
+  "background_color": "#eae2cf",
+  "theme_color": "#2b3440",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
