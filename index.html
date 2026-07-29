@@ -393,8 +393,8 @@
 
   async function loadNotes() {
     try {
-      const res = await window.storage.get(STORAGE_KEY, false);
-      notes = res ? JSON.parse(res.value) : [];
+      const raw = localStorage.getItem(STORAGE_KEY);
+      notes = raw ? JSON.parse(raw) : [];
     } catch (e) {
       notes = [];
     }
@@ -402,8 +402,8 @@
 
   async function saveNotes() {
     try {
-      const result = await window.storage.set(STORAGE_KEY, JSON.stringify(notes), false);
-      flashStatus(result ? '保存済み' : '保存に失敗しました');
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+      flashStatus('保存済み');
     } catch (e) {
       flashStatus('保存エラー');
     }
