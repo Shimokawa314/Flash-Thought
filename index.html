@@ -98,15 +98,17 @@
   .capture textarea {
     width: 100%;
     resize: none;
-    min-height: 40px;
+    min-height: 58px;
     max-height: 120px;
+    overflow-y: hidden;
     font-family: 'Kosugi Maru', sans-serif;
-    font-size: 15px;
+    font-size: 16px;
     color: var(--ink);
     background: transparent;
     border: none;
     padding: 6px 4px;
     outline: none;
+    transition: height 0.15s ease-out;
   }
   .cat-pick {
     display: flex;
@@ -172,7 +174,7 @@
   .sort-row { display: flex; justify-content: flex-end; }
   .sort-row select {
     font-family: 'Kosugi Maru', sans-serif;
-    font-size: 12.5px;
+    font-size: 16px;
     border-radius: 8px;
     border: 1px solid var(--card-edge);
     padding: 6px 8px;
@@ -311,8 +313,7 @@
     </header>
 
     <div class="capture">
-      <textarea id="noteInput" placeholder="頭がいっぱい？
-地面に捨てるより、ここに捨てよう。" rows="2"></textarea>
+      <textarea id="noteInput" rows="3"></textarea>
       <div class="cat-pick" id="catPick">
         <button class="cat-chip" data-c="work" data-active="0">仕事</button>
         <button class="cat-chip" data-c="want" data-active="0">やりたいこと</button>
@@ -358,6 +359,40 @@
 <script>
 (function () {
   const STORAGE_KEY = 'idea-notes';
+  const PLACEHOLDERS = [
+    "アイデアは弾丸より速く消える。\n忘れる前に書き留めておこう。",
+    "君の脳は信用できない。\nメモ帳なら、もう少しマシだ。",
+    "思いつきは一瞬、後悔は一生。\n記録する者だけが未来を作る。",
+    "偉大な発明は偶然から生まれる。\n忘れなければ、の話だが。",
+    "ひらめきは一瞬で消える。\n後悔は驚くほど長持ちする。",
+    "思いついた瞬間が勝負だ。\n明日の君は、もう忘れている。",
+    "天才と凡人の違い？\nメモ帳を持っているかどうかだ。",
+    "アイデアは逃げ足が速い。\n鉛筆は、それより少しだけ速い。",
+    "良い考えほど逃げていく。\n捕まえるなら今しかない。",
+    "記憶は曖昧だ。\nインクは意外と誠実だ。",
+    "メモを取る者は生き残る。\n思い出そうとする者は苦しむ。",
+    "一枚のメモが世界を変える。\nゴミ箱へ行かなければ、だが。",
+    "考えるだけでは足りない。\n書いた者だけが次へ進める。",
+    "そのひらめき、本物か？\n明日になれば確かめようがない。",
+    "忘却は人類共通の才能だ。\n記録だけが、それに勝てる。",
+    "脳みそは壊れる。\nメモ帳は、まだマシだ。",
+    "偉大な発明は偶然生まれる。\n偶然消えることも、よくある。",
+    "世界を救うアイデアだったかもしれない。\n思い出せないなら、もう同じことだ。",
+    "あなたの脳にも保証期間があります。\nメモにはありません。",
+    "「覚えている」は証拠にならない。\n書いてあれば、それが真実だ。",
+    "偉大な発明は、ひらめきから始まる。\n歴史は、記録されたものだけを覚えている。",
+    "アイデアは生き物。\n放っておくと、どこかへ逃げていく。",
+    "思いつくことは才能。\n残すことは技術。",
+    "ひらめきは偶然訪れる。\n残るかどうかは君次第。",
+    "世界を救う方法を思いついた。\n……たぶん。",
+    "君の最高傑作だったかもしれない。\n今となっては誰にも分からない。",
+    "そのアイデアは傑作だった。\n覚えていれば、の話だが。",
+    "良いアイデアほど、逃げ足が速い。\n捕まえられるのは準備した者だけだ。",
+    "紙切れ一枚が未来を変える。\n少なくとも、記憶よりは頼りになる。",
+    "発明家は特別じゃない。\n忘れない工夫をしただけだ。",
+    "メモは未来の自分への通信。\n返事が来る保証はない。",
+    "頭がいっぱい？\n地面に捨てるより、ここに捨てよう。"
+  ];
   const CAT_LABEL = { work: '仕事', want: 'やりたいこと', other: 'その他' };
   const CAT_ORDER = { work: 0, want: 1, other: 2 };
   const ST_LABEL = { none: '未着手', progress: '進行中', check: '要確認', hold: '保留', done: '完了' };
@@ -416,6 +451,7 @@
     notes.push({ id, text, category: pickedCat, status: 'none', createdAt: new Date().toISOString() });
     noteInput.value = '';
     noteInput.style.height = 'auto';
+    noteInput.placeholder = PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)];
     render();
     saveNotes();
   }
@@ -521,6 +557,7 @@
   });
 
   (async function init() {
+    noteInput.placeholder = PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)];
     await loadNotes();
     render();
   })();
